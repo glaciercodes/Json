@@ -1,1 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>Backend</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+
+body{
+  margin:0;
+  padding:25px;
+  background:#f5f7fb;
+  font-family:system-ui,sans-serif;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  padding:30px;
+  border-radius:25px;
+  box-shadow:0 15px 40px rgba(0,0,0,.1);
+}
+
+h1{
+  color:#111827;
+}
+
+.entry{
+  padding:17px;
+  margin:10px 0;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:13px;
+}
+
+.identifier{
+  font-family:monospace;
+  font-size:17px;
+  font-weight:600;
+}
+
+.time{
+  margin-top:6px;
+  color:#64748b;
+  font-size:13px;
+}
+
+.status{
+  padding:12px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  border-radius:10px;
+  margin-bottom:20px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>📂 Backend</h1>
+
+<div class="status">
+Submitted entries
+</div>
+
+<div id="entries">
+Loading...
+</div>
+
+</div>
+
+
+<script>
+
+const firebaseConfig = {
+
+  apiKey:
+    "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
+
+  authDomain:
+    "agentrouter-9c9df.firebaseapp.com",
+
+  projectId:
+    "agentrouter-9c9df",
+
+  storageBucket:
+    "agentrouter-9c9df.firebasestorage.app",
+
+  messagingSenderId:
+    "152852199619",
+
+  appId:
+    "1:152852199619:web:8a60e89492ffea32ec4a76"
+
+};
+
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+const entries = document.getElementById("entries");
+
+
+async function loadEntries(){
+
+  try {
+
+    const snapshot = await db
+      .collection("generated_entries")
+      .orderBy("createdAt", "desc")
+      .get();
+
+
+    if(snapshot.empty){
+
+      entries.innerHTML =
+        "<p>No generated entries yet.</p>";
+
+      return;
+
+    }
+
+
+    entries.innerHTML = "";
+
+
+    snapshot.forEach(doc => {
+
+      const data = doc.data();
+
+      const item =
+        document.createElement("div");
+
+      item.className = "entry";
+
+
+      const identifier =
+        document.createElement("div");
+
+      identifier.className = "identifier";
+
+      identifier.textContent =
+        data.identifier || "Unknown";
+
+
+      const time =
+        document.createElement("div");
+
+      time.className = "time";
+
+
+      if(data.createdAt){
+
+        time.textContent =
+          data.createdAt
+            .toDate()
+            .toLocaleString();
+
+      }else{
+
+        time.textContent =
+          "Just now";
+
+      }
+
+
+      item.appendChild(identifier);
+
+      item.appendChild(time);
+
+      entries.appendChild(item);
+
+    });
+
+
+  } catch(error){
+
+    console.error(error);
+
+    entries.innerHTML = `
+      <div style="
+        color:#b91c1c;
+        background:#fee2e2;
+        padding:15px;
+        border-radius:10px;
+      ">
+        Firebase error: ${error.message}
+      </div>
+    `;
+
+  }
+
+}
+
+
+loadEntries();
+
+</script>
+
+</body>
+</html>
