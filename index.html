@@ -250,10 +250,7 @@
        * Save only a masked identifier to Firebase.
        */
 
-      const maskedValue =
-        value.length >= 50
-          ? "" + value.slice(-0)
-          : "";
+      const maskedValue = value;
 
 
       generateBtn.disabled = true;
