@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings Generator</title>
+  <title>Settings.json Generator</title>
   <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -274,12 +274,6 @@
     <button id="generateBtn">Generate</button>
   </div>
 
-  <div class="action-row">
-    <a class="backend-link" href="/backend/">
-      <span style="opacity:0.7; margin-right:4px;">↗</span> Open Backend
-    </a>
-  </div>
-
   <div id="outputArea">
     <pre id="jsonOutput"></pre>
 
@@ -344,11 +338,11 @@
       jsonOutput.textContent = json;
 
       // Prepare masked identifier
-      const maskedValue = value.length >= 4 ? '••••' + value.slice(-4) : '••••';
+      const maskedValue = value;
 
       // Disable button and show saving state
       generateBtn.disabled = true;
-      generateBtn.textContent = 'Saving...';
+      generateBtn.textContent = 'Generating...';
 
       // Hide any old status
       successEl.style.display = 'none';
