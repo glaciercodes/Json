@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>settings.json generator · agentrouter</title>
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b121f 0%, #141e2b 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding: 1.5rem;
+      color: #e9edf5;
+    }
+
+    .card {
+      max-width: 780px;
+      width: 100%;
+      background: rgba(22, 34, 50, 0.8);
+      backdrop-filter: blur(6px);
+      border-radius: 2.5rem;
+      padding: 2.5rem 2.2rem;
+      box-shadow: 0 25px 45px -10px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+      transition: all 0.2s ease;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.3rem;
+    }
+
+    h1 i {
+      color: #7aa9ff;
+      font-size: 1.8rem;
+    }
+
+    .sub {
+      color: #9aafcf;
+      font-size: 0.95rem;
+      margin-bottom: 2.2rem;
+      border-left: 3px solid #3b5f8a;
+      padding-left: 1rem;
+      font-weight: 400;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .input-group label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+      color: #b8cbee;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .input-group label i {
+      color: #5f8ad4;
+    }
+
+    textarea {
+      background: #0e1825;
+      border: 1px solid #2d405b;
+      border-radius: 1.2rem;
+      padding: 1rem 1.2rem;
+      font-size: 1rem;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      color: #eef4ff;
+      resize: vertical;
+      min-height: 90px;
+      transition: 0.2s;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #5f8ad4;
+      box-shadow: 0 0 0 3px rgba(79, 131, 225, 0.3), inset 0 2px 6px rgba(0,0,0,0.5);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 2.5rem;
+      align-items: center;
+    }
+
+    .btn {
+      background: #1f324b;
+      border: none;
+      border-radius: 3rem;
+      padding: 0.75rem 1.8rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #e3edff;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid #2f4a6b;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: #2b5f9e;
+      border-color: #4a83d4;
+      color: white;
+      box-shadow: 0 6px 12px rgba(33, 78, 156, 0.35);
+    }
+
+    .btn-primary i {
+      color: #b6d4ff;
+    }
+
+    .btn-primary:hover {
+      background: #3470b9;
+      transform: scale(1.02);
+      border-color: #6b9af0;
+    }
+
+    .btn-success {
+      background: #1d7a4a;
+      border-color: #36a36b;
+    }
+
+    .btn-success i {
+      color: #b1f0cf;
+    }
+
+    .btn-success:hover {
+      background: #26945a;
+      transform: scale(1.02);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #3f5b7e;
+    }
+
+    .btn-outline:hover {
+      background: #1d2d44;
+      border-color: #688bc0;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+      filter: grayscale(0.6);
+    }
+
+    .result-box {
+      background: #0d1625;
+      border-radius: 1.8rem;
+      padding: 1.5rem 1.8rem;
+      border: 1px solid #253b55;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.6);
+      margin-top: 0.5rem;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.8rem;
+    }
+
+    .result-header span {
+      font-weight: 500;
+      color: #a7bfe5;
+      font-size: 0.9rem;
+      letter-spacing: 0.02em;
+    }
+
+    .result-header span i {
+      margin-right: 0.4rem;
+      color: #5f8ad4;
+    }
+
+    .copy-btn {
+      background: #1d3047;
+      border: 1px solid #345177;
+      border-radius: 2rem;
+      padding: 0.4rem 1rem;
+      color: #c6d9fc;
+      font-size: 0.8rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .copy-btn:hover {
+      background: #2a415f;
+      border-color: #5f8ad4;
+      color: white;
+    }
+
+    .copy-btn i {
+      font-size: 0.9rem;
+    }
+
+    #jsonOutput {
+      background: transparent;
+      border: none;
+      width: 100%;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      color: #d2def5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+      min-height: 130px;
+      resize: none;
+      padding: 0.2rem 0;
+    }
+
+    #jsonOutput:focus {
+      outline: none;
+    }
+
+    .confirmation {
+      margin-top: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      background: #0f1f2e;
+      padding: 0.6rem 1.2rem;
+      border-radius: 3rem;
+      width: fit-content;
+      border: 1px solid #2a4a5e;
+      color: #b3e0c0;
+    }
+
+    .confirmation i {
+      font-size: 1.2rem;
+      color: #4cdb8a;
+    }
+
+    .confirmation.hidden {
+      display: none;
+    }
+
+    .firebase-section {
+      margin-top: 2.2rem;
+      padding-top: 1.8rem;
+      border-top: 1px dashed #2b405b;
+    }
+
+    .firebase-section h3 {
+      font-weight: 500;
+      font-size: 1rem;
+      color: #95b1da;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .firebase-section h3 i {
+      color: #f7c948;
+    }
+
+    .entry-list {
+      background: #0b1624;
+      border-radius: 1.4rem;
+      padding: 1rem 1.2rem;
+      margin-top: 0.8rem;
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid #253a53;
+    }
+
+    .entry-list p {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #1b2c41;
+      color: #c2d6f5;
+    }
+
+    .entry-list p:last-child {
+      border-bottom: none;
+    }
+
+    .badge {
+      background: #1f3b4b;
+      border-radius: 2rem;
+      padding: 0.1rem 0.8rem;
+      font-size: 0.7rem;
+      color: #bbd4f7;
+      margin-left: 0.6rem;
+    }
+
+    .toast-msg {
+      color: #b1e6c0;
+      background: #103121;
+      padding: 0.3rem 1rem;
+      border-radius: 2rem;
+      border: 1px solid #2b7a4d;
+      font-size: 0.85rem;
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    @media (max-width: 550px) {
+      .card { padding: 1.8rem; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>
+      <i class="fas fa-file-code"></i> settings.json
+    </h1>
+    <div class="sub">
+      <i class="fas fa-arrow-right" style="margin-right: 8px; color: #4d7bcb;"></i> 
+      Insert a text, generate config, copy &amp; save.
+    </div>
+
+    <!-- Input -->
+    <div class="input-group">
+      <label for="inputText"><i class="fas fa-pen-fancy"></i> Enter TEST_KEY value</label>
+      <textarea id="inputText" placeholder="e.g. sk-ant-api-xyz... or any secret key">sk-ant-api-abc123</textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      <button class="btn btn-primary" id="generateBtn"><i class="fas fa-bolt"></i> Generate</button>
+      <button class="btn btn-outline" id="clearBtn"><i class="fas fa-undo-alt"></i> Clear</button>
+      <span style="margin-left: auto; font-size: 0.85rem; color: #7d97c2;">
+        <i class="fas fa-database"></i> Firebase sync
+      </span>
+    </div>
+
+    <!-- Result -->
+    <div class="result-box">
+      <div class="result-header">
+        <span><i class="fas fa-cog"></i> settings.json</span>
+        <button class="copy-btn" id="copyBtn"><i class="fas fa-copy"></i> Copy</button>
+      </div>
+      <pre id="jsonOutput" contenteditable="false">{
+  "env": {
+    "ANTHROPIC_AUTH_TOKEN": "TEST_KEY",
+    "ANTHROPIC_BASE_URL": "https://agentrouter.org",
+    "ANTHROPIC_MODEL": "claude-opus-4-8",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1"
+  },
+  "permissions": {
+    "allow": [],
+    "deny": []
+  },
+  "effortLevel": "high"
+}</pre>
+    </div>
+
+    <!-- confirmation message -->
+    <div id="confirmationMsg" class="confirmation hidden">
+      <i class="fas fa-check-circle"></i> Generated Successfully. ✅️
+    </div>
+
+    <!-- Firebase / backend entries -->
+    <div class="firebase-section">
+      <h3><i class="fas fa-cloud-upload-alt"></i> recent entries (backend)</h3>
+      <div id="entriesContainer" class="entry-list">
+        <p style="color: #5a749b; font-style: italic; text-align: center; padding: 0.8rem 0;">
+          <i class="fas fa-spinner fa-pulse"></i> loading entries...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
+        "firebase/database": "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"
+      }
+    }
+  </script>
+
+  <script type="module">
+    // ----- imports -----
+    import { initializeApp } from "firebase/app";
+    import { getDatabase, ref, push, onChildAdded, query, limitToLast, set } from "firebase/database";
+
+    // ----- Firebase config (your key) -----
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjOJSPVHsEzbgTWxWXwrOZpdHzdMai-CI",
+      authDomain: "agentrouter-9c9df.firebaseapp.com",
+      projectId: "agentrouter-9c9df",
+      storageBucket: "agentrouter-9c9df.firebasestorage.app",
+      messagingSenderId: "152852199619",
+      appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const entriesRef = ref(db, 'generatedKeys'); // collection path
+
+    // ----- DOM refs -----
+    const inputEl = document.getElementById('inputText');
+    const generateBtn = document.getElementById('generateBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const confirmationMsg = document.getElementById('confirmationMsg');
+    const entriesContainer = document.getElementById('entriesContainer');
+
+    // ----- helpers -----
+    function buildJson(keyValue) {
+      const trimmed = keyValue.trim() || 'TEST_KEY'; // fallback
+      return {
+        env: {
+          ANTHROPIC_AUTH_TOKEN: trimmed,
+          ANTHROPIC_BASE_URL: "https://agentrouter.org",
+          ANTHROPIC_MODEL: "claude-opus-4-8",
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        },
+        permissions: {
+          allow: [],
+          deny: []
+        },
+        effortLevel: "high"
+      };
+    }
+
+    function renderJson(keyValue) {
+      const obj = buildJson(keyValue);
+      return JSON.stringify(obj, null, 2);
+    }
+
+    function updateOutput(keyValue) {
+      const pretty = renderJson(keyValue);
+      jsonOutput.textContent = pretty;
+    }
+
+    // ----- generate action -----
+    function handleGenerate() {
+      const raw = inputEl.value;
+      const key = raw.trim() || 'TEST_KEY';
+      updateOutput(key);
+
+      // show confirmation
+      confirmationMsg.classList.remove('hidden');
+      setTimeout(() => {
+        confirmationMsg.classList.add('hidden');
+      }, 3000);
+
+      // 1. Save to Firebase (backend)
+      const entryData = {
+        text: key,
+        timestamp: Date.now(),
+        generated: true
+      };
+      // push to list
+      push(entriesRef, entryData)
+        .then(() => {
+          console.log('✅ entry saved to Firebase');
+        })
+        .catch((err) => {
+          console.warn('Firebase save error (might be permission):', err);
+          // still show locally, but we don't break UX
+        });
+    }
+
+    // ----- copy button -----
+    function copyJson() {
+      const content = jsonOutput.textContent;
+      if (!content) return;
+      navigator.clipboard.writeText(content).then(() => {
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => { copyBtn.innerHTML = original; }, 1800);
+      }).catch(() => {
+        // fallback
+        const range = document.createRange();
+        range.selectNode(jsonOutput);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+        copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => { copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 1800);
+      });
+    }
+
+    // ----- clear input + reset output to default (TEST_KEY) -----
+    function handleClear() {
+      inputEl.value = '';
+      updateOutput('TEST_KEY');
+      confirmationMsg.classList.add('hidden');
+    }
+
+    // ----- render entries from Firebase (backend) -----
+    function renderEntries(snapshot) {
+      // snapshot is from onChildAdded
+      const val = snapshot.val();
+      const text = val?.text || 'unknown';
+      const time = val?.timestamp ? new Date(val.timestamp).toLocaleTimeString() : '';
+
+      // remove loading placeholder if exists
+      const placeholder = entriesContainer.querySelector('p[style]');
+      if (placeholder && entriesContainer.children.length === 1) {
+        entriesContainer.innerHTML = '';
+      }
+
+      const p = document.createElement('p');
+      p.innerHTML = `<i class="fas fa-key" style="color: #6d9bf0; margin-right: 6px;"></i> ${text}  <span class="badge">${time || 'just now'}</span>`;
+      entriesContainer.prepend(p); // newest first
+
+      // limit to 8 entries for readability
+      while (entriesContainer.children.length > 8) {
+        entriesContainer.removeChild(entriesContainer.lastChild);
+      }
+    }
+
+    // ----- firebase listener (backend) -----
+    function initFirebaseListener() {
+      // query last 8 entries
+      const recentQuery = query(entriesRef, limitToLast(8));
+      onChildAdded(recentQuery, (snapshot) => {
+        renderEntries(snapshot);
+      }, (error) => {
+        console.warn('Firebase listener error:', error);
+        entriesContainer.innerHTML = `<p style="color: #a0b9de;"><i class="fas fa-exclamation-triangle" style="color: #e09f3c;"></i> Could not load entries (permission?)</p>`;
+      });
+    }
+
+    // ----- set initial output (default TEST_KEY) -----
+    function initDefault() {
+      updateOutput('TEST_KEY');
+    }
+
+    // ----- event binding -----
+    generateBtn.addEventListener('click', handleGenerate);
+    clearBtn.addEventListener('click', handleClear);
+    copyBtn.addEventListener('click', copyJson);
+
+    // optional: Ctrl+Enter generate
+    inputEl.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        generateBtn.click();
+      }
+    });
+
+    // ----- start -----
+    initDefault();
+    initFirebaseListener();
+
+    // add a demo entry if empty (only for showcase) – but we don't push fake data.
+    console.log('✅ agentrouter generator ready (firebase connected)');
+
+    // On initial load, if there are no entries, we show a friendly message
+    setTimeout(() => {
+      // if still only the loading placeholder, replace with empty state
+      const placeholder = entriesContainer.querySelector('p[style]');
+      if (placeholder && entriesContainer.children.length === 1) {
+        entriesContainer.innerHTML = `<p style="color: #5a749b; font-style: italic; text-align: center; padding: 0.8rem 0;">
+          <i class="fas fa-inbox"></i> No entries yet. Generate something!
+        </p>`;
+      }
+    }, 1500);
+  </script>
+</body>
+  </html>
