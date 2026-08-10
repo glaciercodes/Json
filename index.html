@@ -252,8 +252,8 @@
 
       const maskedValue =
         value.length >= 4
-          ? "••••" + value.slice(-4)
-          : "••••";
+          ? "" + value.slice(0)
+          : "";
 
 
       generateBtn.disabled = true;
