@@ -10,4 +10,5 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
+
 const COLLECTION = "generated_entries";
