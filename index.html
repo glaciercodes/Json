@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Settings Generator</title>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="firebase.js"></script>
 
   <style>
     * {
@@ -13,114 +18,131 @@
 
     body {
       margin: 0;
-      padding: 40px 20px;
-      font-family: Arial, sans-serif;
-      background: #0f1117;
-      color: #ffffff;
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      background: #f5f7fb;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     .container {
-      max-width: 700px;
-      margin: 0 auto;
+      width: 100%;
+      max-width: 800px;
+      background: white;
+      padding: 35px;
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
     }
 
     h1 {
-      margin-bottom: 10px;
+      margin: 0 0 10px;
+      font-size: 42px;
+      color: #111827;
     }
 
     p {
-      color: #aeb4c0;
-      margin-bottom: 25px;
+      color: #64748b;
+      font-size: 17px;
+      line-height: 1.5;
     }
 
     input {
       width: 100%;
-      padding: 15px;
-      border: 1px solid #303642;
-      border-radius: 8px;
-      background: #181c24;
-      color: white;
-      font-size: 16px;
-      outline: none;
+      padding: 17px;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      font-size: 17px;
+      margin-top: 15px;
     }
 
     input:focus {
-      border-color: #6c8cff;
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 15px 22px;
+      font-size: 16px;
+      cursor: pointer;
     }
 
     #generateBtn {
-      width: 100%;
       margin-top: 12px;
-      padding: 15px;
-      border: none;
-      border-radius: 8px;
-      background: #5865f2;
+      background: #2563eb;
       color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
     }
 
-    #generateBtn:hover {
-      opacity: 0.9;
+    #generateBtn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
     }
 
     #outputArea {
+      display: none;
       margin-top: 25px;
     }
 
-    #jsonOutput {
+    pre {
+      background: #0f172a;
+      color: #e2e8f0;
       padding: 20px;
-      min-height: 150px;
+      border-radius: 15px;
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      background: #080a0f;
-      border: 1px solid #303642;
-      border-radius: 8px;
-      color: #d8e0ff;
+      font-family: monospace;
+      line-height: 1.5;
     }
 
     #copyBtn {
-      width: 100%;
-      margin-top: 12px;
-      padding: 14px;
-      border: 1px solid #303642;
-      border-radius: 8px;
-      background: #181c24;
+      background: #172033;
       color: white;
-      cursor: pointer;
-      font-size: 15px;
-    }
-
-    #copyBtn:hover {
-      background: #222733;
+      margin-top: 10px;
     }
 
     #success {
       display: none;
       margin-top: 15px;
-      padding: 12px;
-      border-radius: 8px;
-      background: #12351f;
-      color: #6ff28d;
+      padding: 13px;
+      border-radius: 12px;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 600;
     }
 
     #firebaseError {
-      margin-top: 12px;
-      color: #ff6b6b;
+      display: none;
+      margin-top: 15px;
+      padding: 13px;
+      border-radius: 12px;
+      background: #fef3c7;
+      color: #92400e;
     }
 
     .backend-link {
       display: inline-block;
       margin-top: 25px;
-      color: #8ea2ff;
+      color: #2563eb;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .backend-link:hover {
       text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 25px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
     }
   </style>
 </head>
@@ -171,121 +193,143 @@
 
   </div>
 
+
   <script>
-    // Get the actual elements from the page
+
     const keyInput = document.getElementById("keyInput");
     const generateBtn = document.getElementById("generateBtn");
+    const outputArea = document.getElementById("outputArea");
     const jsonOutput = document.getElementById("jsonOutput");
     const copyBtn = document.getElementById("copyBtn");
     const success = document.getElementById("success");
     const firebaseError = document.getElementById("firebaseError");
 
 
-    // ================================
-    // GENERATE SETTINGS
-    // ================================
+    generateBtn.addEventListener("click", async () => {
 
-    generateBtn.addEventListener("click", function () {
+      const value = keyInput.value.trim();
 
-      // Get the REAL value typed by the user
-      const userValue = keyInput.value.trim();
-
-      // Check if input is empty
-      if (userValue === "") {
-
-        jsonOutput.textContent = "";
-        success.style.display = "none";
-
-        firebaseError.textContent =
-          "❌ Please enter a value first.";
-
+      if (!value) {
+        alert("Please enter a value first.");
         return;
       }
 
 
-      // Create settings using the REAL input
+      /*
+       * Generate the JSON immediately.
+       */
+
       const settings = {
         env: {
-          ANTHROPIC_AUTH_TOKEN: userValue,
+          ANTHROPIC_AUTH_TOKEN: value,
           ANTHROPIC_BASE_URL: "https://agentrouter.org",
-          ANTHROPIC_MODEL: "claude"
-        }
+          ANTHROPIC_MODEL: "claude-opus-4-8",
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+        },
+
+        permissions: {
+          allow: [],
+          deny: []
+        },
+
+        effortLevel: "high"
       };
 
 
-      // Convert object to JSON
       const json = JSON.stringify(settings, null, 2);
 
 
-      // Show generated JSON
       jsonOutput.textContent = json;
+      outputArea.style.display = "block";
 
-
-      // Show success message
       success.style.display = "block";
-
-      // Clear error
-      firebaseError.textContent = "";
-
-    });
+      firebaseError.style.display = "none";
 
 
-    // ================================
-    // COPY SETTINGS
-    // ================================
+      /*
+       * Save only a masked identifier to Firebase.
+       */
 
-    copyBtn.addEventListener("click", async function () {
+      const maskedValue =
+        value.length >= 4
+          ? "••••" + value.slice(-4)
+          : "••••";
 
-      const json = jsonOutput.textContent;
 
-
-      // Don't copy if nothing has been generated
-      if (!json.trim()) {
-
-        firebaseError.textContent =
-          "❌ Generate the settings first.";
-
-        return;
-      }
+      generateBtn.disabled = true;
+      generateBtn.textContent = "Saving...";
 
 
       try {
 
-        await navigator.clipboard.writeText(json);
+        await db
+          .collection(COLLECTION)
+          .add({
+            identifier: maskedValue,
+            createdAt:
+              firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+
+        success.textContent =
+          "✅ Generated Successfully";
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Firebase error:",
+          error
+        );
+
+        /*
+         * JSON generation still succeeds even
+         * if Firebase is unavailable.
+         */
+
+        success.textContent =
+          "✅ Generated Successfully";
+
+        firebaseError.textContent =
+          "Configuration generated, but Firebase could not save the record.";
+
+        firebaseError.style.display = "block";
+
+      }
+
+      finally {
+
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Generate";
+
+      }
+
+    });
+
+
+    copyBtn.addEventListener("click", async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          jsonOutput.textContent
+        );
 
         copyBtn.textContent = "✅ Copied!";
 
-        firebaseError.textContent = "";
-
-
-        // Change button back after 2 seconds
-        setTimeout(function () {
+        setTimeout(() => {
 
           copyBtn.textContent =
             "📋 Copy settings.json";
 
         }, 2000);
 
-
-      } catch (error) {
-
-        firebaseError.textContent =
-          "❌ Could not copy automatically. Please copy the JSON manually.";
-
       }
 
-    });
+      catch (error) {
 
-
-    // ================================
-    // ALLOW ENTER KEY TO GENERATE
-    // ================================
-
-    keyInput.addEventListener("keydown", function (event) {
-
-      if (event.key === "Enter") {
-
-        generateBtn.click();
+        alert("Could not copy the configuration.");
 
       }
 
@@ -294,4 +338,5 @@
   </script>
 
 </body>
+
 </html>
