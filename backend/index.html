@@ -1,248 +1,358 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Backend</title>
+  <meta charset="UTF-8">
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <title>Backend - Generated Entries</title>
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  padding: 30px 20px;
-  background: #000;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
 
-.container {
-  width: 100%;
-  max-width: 900px;
-  margin: auto;
-  background: #0b0b0b;
-  border: 1px solid #222;
-  border-radius: 20px;
-  padding: 30px;
-}
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 
-h1 {
-  margin: 0 0 8px;
-  font-size: 30px;
-  color: #fff;
-}
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-.subtitle {
-  color: #888;
-  margin-bottom: 25px;
-}
 
-.status {
-  background: #111;
-  border: 1px solid #222;
-  color: #ccc;
-  padding: 14px 16px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
+  <style>
 
-.entry {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 15px;
-  margin-bottom: 10px;
-  background: #111;
-  border: 1px solid #252525;
-  border-radius: 12px;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-.value {
-  flex: 1;
-  min-width: 0;
-  color: #fff;
-  font-family: monospace;
-  font-size: 16px;
-  word-break: break-all;
-}
 
-.time {
-  color: #666;
-  font-size: 12px;
-  margin-top: 5px;
-}
+    body {
 
-.copy-btn {
-  flex-shrink: 0;
-  background: #fff;
-  color: #000;
-  border: none;
-  padding: 9px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
+      margin: 0;
 
-.copy-btn:hover {
-  background: #ddd;
-}
+      min-height: 100vh;
 
-.empty {
-  color: #777;
-  text-align: center;
-  padding: 30px;
-}
+      padding: 25px;
 
-.error {
-  color: #ff6b6b;
-  background: #1a0808;
-  border: 1px solid #3a1111;
-  padding: 15px;
-  border-radius: 10px;
-}
-</style>
+      background: #f5f7fb;
+
+      font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    }
+
+
+    .container {
+
+      width: 100%;
+
+      max-width: 900px;
+
+      margin: 0 auto;
+
+      background: white;
+
+      padding: 30px;
+
+      border-radius: 25px;
+
+      box-shadow:
+        0 20px 50px rgba(0,0,0,.10);
+
+    }
+
+
+    h1 {
+
+      margin-top: 0;
+
+      color: #111827;
+
+    }
+
+
+    .header {
+
+      padding: 15px;
+
+      background: #eff6ff;
+
+      color: #1d4ed8;
+
+      border-radius: 12px;
+
+      margin-bottom: 20px;
+
+      font-weight: 600;
+
+    }
+
+
+    .entry {
+
+      padding: 18px;
+
+      margin-bottom: 12px;
+
+      background: #f8fafc;
+
+      border: 1px solid #e2e8f0;
+
+      border-radius: 14px;
+
+    }
+
+
+    .identifier {
+
+      font-family: monospace;
+
+      font-size: 18px;
+
+      font-weight: 600;
+
+      color: #111827;
+
+      word-break: break-all;
+
+    }
+
+
+    .time {
+
+      margin-top: 7px;
+
+      color: #64748b;
+
+      font-size: 13px;
+
+    }
+
+
+    .empty {
+
+      padding: 30px;
+
+      text-align: center;
+
+      color: #64748b;
+
+    }
+
+
+    .error {
+
+      padding: 15px;
+
+      background: #fee2e2;
+
+      color: #991b1b;
+
+      border-radius: 12px;
+
+      word-break: break-word;
+
+    }
+
+
+    .back {
+
+      display: inline-block;
+
+      margin-top: 25px;
+
+      color: #2563eb;
+
+      text-decoration: none;
+
+      font-weight: 600;
+
+    }
+
+  </style>
+
 </head>
+
 
 <body>
 
-<div class="container">
 
-  <h1>Backend</h1>
+  <div class="container">
 
-  <div class="subtitle">
-    Submitted entries
+    <h1>📂 Backend</h1>
+
+
+    <div class="header">
+
+      Submitted entries
+
+    </div>
+
+
+    <div id="entries">
+
+      Loading entries...
+
+    </div>
+
+
+    <a
+      class="back"
+      href="/"
+    >
+      ← Back to Generator
+    </a>
+
   </div>
 
-  <div class="status">
-    Entries received from the generator
-  </div>
-
-  <div id="entries">
-    Loading...
-  </div>
-
-</div>
 
 <script>
 
+
+/*
+ * Firebase configuration
+ */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
-  authDomain: "agentrouter-9c9df.firebaseapp.com",
-  projectId: "agentrouter-9c9df",
-  storageBucket: "agentrouter-9c9df.firebasestorage.app",
-  messagingSenderId: "152852199619",
-  appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
+
+  apiKey:
+    "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
+
+  authDomain:
+    "agentrouter-9c9df.firebaseapp.com",
+
+  projectId:
+    "agentrouter-9c9df",
+
+  storageBucket:
+    "agentrouter-9c9df.firebasestorage.app",
+
+  messagingSenderId:
+    "152852199619",
+
+  appId:
+    "1:152852199619:web:8a60e89492ffea32ec4a76"
+
 };
+
 
 firebase.initializeApp(firebaseConfig);
 
-const db = firebase.firestore();
 
-const entries = document.getElementById("entries");
+const db =
+  firebase.firestore();
+
+
+const entries =
+  document.getElementById("entries");
+
 
 async function loadEntries() {
 
+  entries.innerHTML =
+    "Loading entries...";
+
+
   try {
 
-    const snapshot = await db
-      .collection("generated_entries")
-      .orderBy("createdAt", "desc")
-      .get();
+
+    const snapshot =
+      await db
+        .collection("generated_entries")
+        .orderBy("createdAt", "desc")
+        .get();
+
 
     if (snapshot.empty) {
-      entries.innerHTML =
-        '<div class="empty">No entries yet.</div>';
+
+      entries.innerHTML = `
+        <div class="empty">
+          No entries have been generated yet.
+        </div>
+      `;
+
       return;
+
     }
+
 
     entries.innerHTML = "";
 
-    snapshot.forEach(doc => {
 
-      const data = doc.data();
+    snapshot.forEach((doc) => {
 
-      const entry = document.createElement("div");
-      entry.className = "entry";
+      const data =
+        doc.data();
 
-      const content = document.createElement("div");
-      content.style.flex = "1";
 
-      const value = document.createElement("div");
-      value.className = "value";
+      const entry =
+        document.createElement("div");
 
-      /*
-       * For non-sensitive text/IDs, use the complete
-       * submitted value stored in Firebase.
-       */
-      value.textContent =
-        data.value || data.identifier || "";
+      entry.className =
+        "entry";
 
-      const time = document.createElement("div");
-      time.className = "time";
+
+      const identifier =
+        document.createElement("div");
+
+      identifier.className =
+        "identifier";
+
+
+      identifier.textContent =
+        data.identifier || "Unknown";
+
+
+      const time =
+        document.createElement("div");
+
+      time.className =
+        "time";
+
 
       if (data.createdAt) {
+
         time.textContent =
-          data.createdAt.toDate().toLocaleString();
-      } else {
-        time.textContent = "Just now";
+          data.createdAt
+            .toDate()
+            .toLocaleString();
+
       }
 
-      content.appendChild(value);
-      content.appendChild(time);
+      else {
 
-      const copy = document.createElement("button");
-      copy.className = "copy-btn";
-      copy.textContent = "Copy";
+        time.textContent =
+          "Just now";
 
-      copy.addEventListener("click", async () => {
+      }
 
-        try {
 
-          await navigator.clipboard.writeText(
-            value.textContent
-          );
+      entry.appendChild(identifier);
 
-          copy.textContent = "Copied";
-
-          setTimeout(() => {
-            copy.textContent = "Copy";
-          }, 1500);
-
-        } catch (error) {
-
-          console.error(error);
-          copy.textContent = "Failed";
-
-          setTimeout(() => {
-            copy.textContent = "Copy";
-          }, 1500);
-
-        }
-
-      });
-
-      entry.appendChild(content);
-      entry.appendChild(copy);
+      entry.appendChild(time);
 
       entries.appendChild(entry);
 
     });
 
-  } catch (error) {
 
-    console.error(error);
+  }
+
+  catch (error) {
+
+    console.error(
+      "Backend Firebase error:",
+      error
+    );
+
 
     entries.innerHTML = `
       <div class="error">
-        Unable to load entries: ${error.message}
+        <strong>Firebase error</strong><br><br>
+        ${error.message}
       </div>
     `;
 
@@ -250,9 +360,12 @@ async function loadEntries() {
 
 }
 
+
 loadEntries();
 
 </script>
 
+
 </body>
+
 </html>
