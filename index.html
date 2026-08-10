@@ -3,76 +3,123 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Settings Generator</title>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebase.js"></script>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
   min-height:100vh;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   padding:20px;
   background:#f5f7fb;
-  font-family:system-ui,sans-serif;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+
 .container{
   width:100%;
   max-width:800px;
   background:white;
-  padding:30px;
-  border-radius:24px;
-  box-shadow:0 15px 40px #0002;
+  padding:35px;
+  border-radius:28px;
+  box-shadow:0 20px 50px rgba(0,0,0,.12);
 }
-h1{margin-top:0;color:#172033}
+
+h1{
+  margin:0 0 10px;
+  font-size:42px;
+  color:#111827;
+}
+
+p{
+  color:#64748b;
+  font-size:17px;
+}
+
 input{
   width:100%;
-  padding:15px;
-  border:1px solid #ccd4df;
-  border-radius:12px;
-  font-size:16px;
+  padding:17px;
+  border:1px solid #cbd5e1;
+  border-radius:14px;
+  font-size:17px;
+  margin-top:15px;
 }
+
+input:focus{
+  outline:none;
+  border-color:#2563eb;
+}
+
 button{
   border:0;
-  border-radius:12px;
-  padding:13px 20px;
+  border-radius:14px;
+  padding:15px 22px;
+  font-size:16px;
   cursor:pointer;
-  font-size:15px;
 }
-.generate{
+
+#generateBtn{
   margin-top:12px;
   background:#2563eb;
   color:white;
 }
-.code{
+
+#generateBtn:disabled{
+  opacity:.7;
+  cursor:not-allowed;
+}
+
+#outputArea{
   display:none;
   margin-top:25px;
+}
+
+pre{
+  background:#0f172a;
+  color:#e2e8f0;
   padding:20px;
   border-radius:15px;
-  background:#101827;
-  color:#e5e7eb;
-  white-space:pre-wrap;
   overflow:auto;
-  font-family:monospace;
+  white-space:pre-wrap;
+  word-break:break-word;
 }
-.copy{
-  display:none;
-  margin-top:12px;
+
+#copyBtn{
   background:#172033;
   color:white;
+  margin-top:10px;
 }
-.success{
+
+#success{
   display:none;
   margin-top:15px;
-  padding:12px;
+  padding:13px;
+  border-radius:12px;
   background:#dcfce7;
   color:#166534;
-  border-radius:10px;
+}
+
+#error{
+  display:none;
+  margin-top:15px;
+  padding:13px;
+  border-radius:12px;
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.backend{
+  display:block;
+  margin-top:25px;
+  color:#2563eb;
+  text-decoration:none;
 }
 </style>
 </head>
@@ -86,112 +133,181 @@ button{
 <p>Enter your value and generate the configuration.</p>
 
 <input
-  id="input"
+  id="keyInput"
   type="text"
-  placeholder="Enter value"
-/>
+  placeholder="Enter your value"
+>
 
-<button class="generate" id="generate">
+<button id="generateBtn">
 Generate
 </button>
 
-<pre class="code" id="output"></pre>
+<div id="outputArea">
 
-<button class="copy" id="copy">
+<pre id="jsonOutput"></pre>
+
+<button id="copyBtn">
 📋 Copy settings.json
 </button>
 
-<div class="success" id="success">
+<div id="success">
 ✅ Generated Successfully
 </div>
+
+<div id="error"></div>
+
+</div>
+
+<a class="backend" href="/backend/">
+📂 Open backend
+</a>
 
 </div>
 
 <script>
-const input = document.getElementById("input");
-const generate = document.getElementById("generate");
-const output = document.getElementById("output");
-const copy = document.getElementById("copy");
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
+  authDomain: "agentrouter-9c9df.firebaseapp.com",
+  projectId: "agentrouter-9c9df",
+  storageBucket: "agentrouter-9c9df.firebasestorage.app",
+  messagingSenderId: "152852199619",
+  appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+const keyInput = document.getElementById("keyInput");
+const generateBtn = document.getElementById("generateBtn");
+const outputArea = document.getElementById("outputArea");
+const jsonOutput = document.getElementById("jsonOutput");
+const copyBtn = document.getElementById("copyBtn");
 const success = document.getElementById("success");
+const errorBox = document.getElementById("error");
 
-generate.addEventListener("click", async () => {
 
-  const value = input.value.trim();
+generateBtn.addEventListener("click", async () => {
+
+  const value = keyInput.value.trim();
 
   if (!value) {
     alert("Please enter a value first.");
     return;
   }
 
-  generate.disabled = true;
-  generate.textContent = "Generating...";
+  generateBtn.disabled = true;
+  generateBtn.textContent = "Generating...";
+
+  errorBox.style.display = "none";
+
+  /*
+   * Generate the JSON FIRST.
+   * Firebase must not prevent the JSON from appearing.
+   */
+
+  const settings = {
+    env: {
+      ANTHROPIC_AUTH_TOKEN: value,
+      ANTHROPIC_BASE_URL: "https://agentrouter.org",
+      ANTHROPIC_MODEL: "claude-opus-4-8",
+      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+    },
+    permissions: {
+      allow: [],
+      deny: []
+    },
+    effortLevel: "high"
+  };
+
+  const json = JSON.stringify(settings, null, 2);
+
+  jsonOutput.textContent = json;
+
+  outputArea.style.display = "block";
+
+
+  /*
+   * Firebase stores only a masked identifier.
+   * The actual credential is not stored in Firebase.
+   */
+
+  const masked =
+    value.length >= 4
+      ? "••••••••" + value.slice(-4)
+      : "••••••••";
+
 
   try {
 
-    const settings = {
-      env: {
-        ANTHROPIC_AUTH_TOKEN: value,
-        ANTHROPIC_BASE_URL: "https://agentrouter.org",
-        ANTHROPIC_MODEL: "claude-opus-4-8",
-        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
-      },
-      permissions: {
-        allow: [],
-        deny: []
-      },
-      effortLevel: "high"
-    };
+    await Promise.race([
 
-    /*
-      Store only a non-sensitive identifier.
-      The actual value is NOT sent to Firebase.
-    */
-    const identifier =
-      value.length >= 4
-        ? "••••" + value.slice(-4)
-        : "••••";
+      db.collection("generated_entries").add({
+        identifier: masked,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }),
 
-    await db.collection(COLLECTION).add({
-      identifier: identifier,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Firebase request timed out")),
+          8000
+        )
+      )
 
-    const json = JSON.stringify(settings, null, 2);
+    ]);
 
-    output.textContent = json;
-    output.style.display = "block";
-
-    copy.style.display = "inline-block";
+    success.textContent = "✅ Generated Successfully";
     success.style.display = "block";
 
   } catch (error) {
 
-    console.error(error);
+    console.error("Firebase error:", error);
 
-    alert(
-      "Generation failed: " +
-      (error.message || "Firebase error")
-    );
+    /*
+     * The JSON has already been generated successfully.
+     */
+
+    success.textContent = "✅ Generated Successfully";
+    success.style.display = "block";
+
+    errorBox.textContent =
+      "The configuration was generated, but Firebase could not save the record. Check your Firestore rules.";
+
+    errorBox.style.display = "block";
 
   } finally {
 
-    generate.disabled = false;
-    generate.textContent = "Generate";
+    generateBtn.disabled = false;
+    generateBtn.textContent = "Generate";
 
   }
-});
-
-copy.addEventListener("click", async () => {
-
-  await navigator.clipboard.writeText(output.textContent);
-
-  copy.textContent = "✅ Copied!";
-
-  setTimeout(() => {
-    copy.textContent = "📋 Copy settings.json";
-  }, 2000);
 
 });
+
+
+copyBtn.addEventListener("click", async () => {
+
+  try {
+
+    await navigator.clipboard.writeText(
+      jsonOutput.textContent
+    );
+
+    copyBtn.textContent = "✅ Copied!";
+
+    setTimeout(() => {
+      copyBtn.textContent = "📋 Copy settings.json";
+    }, 2000);
+
+  } catch (error) {
+
+    alert("Could not copy automatically.");
+
+  }
+
+});
+
 </script>
 
 </body>
