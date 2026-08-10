@@ -1,312 +1,522 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Settings Generator</title>
+  <title>Settings Generator</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-<style>
-*{box-sizing:border-box}
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:20px;
-  background:#f5f7fb;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
+    body {
+      min-height: 100vh;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
 
-.container{
-  width:100%;
-  max-width:800px;
-  background:white;
-  padding:35px;
-  border-radius:28px;
-  box-shadow:0 20px 50px rgba(0,0,0,.12);
-}
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-h1{
-  margin:0 0 10px;
-  font-size:42px;
-  color:#111827;
-}
+      padding: 20px;
+    }
 
-p{
-  color:#64748b;
-  font-size:17px;
-}
+    .container {
+      width: 100%;
+      max-width: 800px;
 
-input{
-  width:100%;
-  padding:17px;
-  border:1px solid #cbd5e1;
-  border-radius:14px;
-  font-size:17px;
-  margin-top:15px;
-}
+      background: #0d0d0d;
+      border: 1px solid #242424;
+      border-radius: 20px;
 
-input:focus{
-  outline:none;
-  border-color:#2563eb;
-}
+      padding: 30px;
 
-button{
-  border:0;
-  border-radius:14px;
-  padding:15px 22px;
-  font-size:16px;
-  cursor:pointer;
-}
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
 
-#generateBtn{
-  margin-top:12px;
-  background:#2563eb;
-  color:white;
-}
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
 
-#generateBtn:disabled{
-  opacity:.7;
-  cursor:not-allowed;
-}
+    .description {
+      color: #999;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
 
-#outputArea{
-  display:none;
-  margin-top:25px;
-}
+    input {
+      width: 100%;
 
-pre{
-  background:#0f172a;
-  color:#e2e8f0;
-  padding:20px;
-  border-radius:15px;
-  overflow:auto;
-  white-space:pre-wrap;
-  word-break:break-word;
-}
+      padding: 15px;
 
-#copyBtn{
-  background:#172033;
-  color:white;
-  margin-top:10px;
-}
+      background: #050505;
+      color: white;
 
-#success{
-  display:none;
-  margin-top:15px;
-  padding:13px;
-  border-radius:12px;
-  background:#dcfce7;
-  color:#166534;
-}
+      border: 1px solid #333;
+      border-radius: 10px;
 
-#error{
-  display:none;
-  margin-top:15px;
-  padding:13px;
-  border-radius:12px;
-  background:#fee2e2;
-  color:#991b1b;
-}
+      font-size: 16px;
+    }
 
-.backend{
-  display:block;
-  margin-top:25px;
-  color:#2563eb;
-  text-decoration:none;
-}
-</style>
+    input:focus {
+      outline: none;
+      border-color: #666;
+    }
+
+    #generateBtn {
+      width: 100%;
+
+      margin-top: 12px;
+
+      padding: 15px;
+
+      background: white;
+      color: black;
+
+      border: none;
+      border-radius: 10px;
+
+      font-size: 16px;
+      font-weight: bold;
+
+      cursor: pointer;
+    }
+
+    #generateBtn:hover {
+      background: #ddd;
+    }
+
+    #generateBtn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    #outputArea {
+      display: none;
+      margin-top: 25px;
+    }
+
+    pre {
+      background: #050505;
+      color: #ddd;
+
+      border: 1px solid #292929;
+      border-radius: 12px;
+
+      padding: 20px;
+
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+
+      font-family: monospace;
+      line-height: 1.5;
+    }
+
+    #copyBtn {
+      margin-top: 12px;
+
+      padding: 12px 18px;
+
+      background: #222;
+      color: white;
+
+      border: 1px solid #444;
+      border-radius: 10px;
+
+      cursor: pointer;
+    }
+
+    #copyBtn:hover {
+      background: #333;
+    }
+
+    #success {
+      display: none;
+
+      margin-top: 12px;
+
+      padding: 12px;
+
+      background: #102515;
+      color: #8ee69b;
+
+      border: 1px solid #1d5728;
+      border-radius: 10px;
+    }
+
+    #error {
+      display: none;
+
+      margin-top: 12px;
+
+      padding: 12px;
+
+      background: #251010;
+      color: #ff9999;
+
+      border: 1px solid #572020;
+      border-radius: 10px;
+    }
+
+    .backend-link {
+      display: block;
+
+      margin-top: 25px;
+
+      color: #aaa;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .backend-link:hover {
+      color: white;
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="container">
 
-<h1>⚡ Settings Generator</h1>
+  <h1>Settings Generator</h1>
 
-<p>Enter your value and generate the configuration.</p>
+  <p class="description">
+    Enter your value and generate the settings configuration.
+  </p>
 
-<input
-  id="keyInput"
-  type="text"
-  placeholder="Enter your value"
->
+  <input
+    id="keyInput"
+    type="text"
+    placeholder="Enter your value"
+    autocomplete="off"
+  >
 
-<button id="generateBtn">
-Generate
-</button>
+  <button id="generateBtn">
+    Generate
+  </button>
 
-<div id="outputArea">
 
-<pre id="jsonOutput"></pre>
+  <!-- Generated JSON -->
+  <div id="outputArea">
 
-<button id="copyBtn">
-📋 Copy settings.json
-</button>
+    <pre id="jsonOutput"></pre>
 
-<div id="success">
-✅ Generated Successfully
+    <button id="copyBtn">
+      Copy settings.json
+    </button>
+
+    <div id="success">
+      Generated Successfully
+    </div>
+
+    <div id="error"></div>
+
+  </div>
+
+
+  <a
+    href="/backend/"
+    class="backend-link"
+  >
+    Open Backend
+  </a>
+
 </div>
 
-<div id="error"></div>
-
-</div>
-
-<a class="backend" href="/backend/">
-📂 Open backend
-</a>
-
-</div>
 
 <script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
-  authDomain: "agentrouter-9c9df.firebaseapp.com",
-  projectId: "agentrouter-9c9df",
-  storageBucket: "agentrouter-9c9df.firebasestorage.app",
-  messagingSenderId: "152852199619",
-  appId: "1:152852199619:web:8a60e89492ffea32ec4a76"
-};
-
-firebase.initializeApp(firebaseConfig);
-
-const db = firebase.firestore();
-
-const keyInput = document.getElementById("keyInput");
-const generateBtn = document.getElementById("generateBtn");
-const outputArea = document.getElementById("outputArea");
-const jsonOutput = document.getElementById("jsonOutput");
-const copyBtn = document.getElementById("copyBtn");
-const success = document.getElementById("success");
-const errorBox = document.getElementById("error");
-
-
-generateBtn.addEventListener("click", async () => {
-
-  const value = keyInput.value.trim();
-
-  if (!value) {
-    alert("Please enter a value first.");
-    return;
-  }
-
-  generateBtn.disabled = true;
-  generateBtn.textContent = "Generating...";
-
-  errorBox.style.display = "none";
-
   /*
-   * Generate the JSON FIRST.
-   * Firebase must not prevent the JSON from appearing.
+   * FIREBASE CONFIG
    */
 
-  const settings = {
-    env: {
-      ANTHROPIC_AUTH_TOKEN: value,
-      ANTHROPIC_BASE_URL: "https://agentrouter.org",
-      ANTHROPIC_MODEL: "claude-opus-4-8",
-      CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: "1"
-    },
-    permissions: {
-      allow: [],
-      deny: []
-    },
-    effortLevel: "high"
+  const firebaseConfig = {
+
+    apiKey:
+      "AIzaSyAjOSPJVsEzbgTWxWXwrOZpdHzdMai-CI",
+
+    authDomain:
+      "agentrouter-9c9df.firebaseapp.com",
+
+    projectId:
+      "agentrouter-9c9df",
+
+    storageBucket:
+      "agentrouter-9c9df.firebasestorage.app",
+
+    messagingSenderId:
+      "152852199619",
+
+    appId:
+      "1:152852199619:web:8a60e89492ffea32ec4a76"
+
   };
 
-  const json = JSON.stringify(settings, null, 2);
 
-  jsonOutput.textContent = json;
+  /*
+   * INITIALIZE FIREBASE
+   */
 
-  outputArea.style.display = "block";
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
 
 
   /*
-   * Firebase stores only a masked identifier.
-   * The actual credential is not stored in Firebase.
+   * DOM ELEMENTS
    */
 
-  const masked =
-    value.length >= 4
-      ? "••••••••" + value.slice(-4)
-      : "••••••••";
+  const keyInput =
+    document.getElementById("keyInput");
+
+  const generateBtn =
+    document.getElementById("generateBtn");
+
+  const outputArea =
+    document.getElementById("outputArea");
+
+  const jsonOutput =
+    document.getElementById("jsonOutput");
+
+  const copyBtn =
+    document.getElementById("copyBtn");
+
+  const success =
+    document.getElementById("success");
+
+  const errorBox =
+    document.getElementById("error");
 
 
-  try {
+  /*
+   * GENERATE BUTTON
+   */
 
-    await Promise.race([
+  generateBtn.addEventListener("click", async () => {
 
-      db.collection("generated_entries").add({
-        identifier: masked,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      }),
+    const value =
+      keyInput.value.trim();
 
-      new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Firebase request timed out")),
-          8000
-        )
-      )
-
-    ]);
-
-    success.textContent = "✅ Generated Successfully";
-    success.style.display = "block";
-
-  } catch (error) {
-
-    console.error("Firebase error:", error);
 
     /*
-     * The JSON has already been generated successfully.
+     * Don't generate if empty
      */
 
-    success.textContent = "✅ Generated Successfully";
-    success.style.display = "block";
+    if (!value) {
 
-    errorBox.textContent =
-      "The configuration was generated, but Firebase could not save the record. Check your Firestore rules.";
+      alert("Please enter a value first.");
 
-    errorBox.style.display = "block";
+      return;
 
-  } finally {
-
-    generateBtn.disabled = false;
-    generateBtn.textContent = "Generate";
-
-  }
-
-});
+    }
 
 
-copyBtn.addEventListener("click", async () => {
+    generateBtn.disabled = true;
 
-  try {
+    generateBtn.textContent =
+      "Generating...";
 
-    await navigator.clipboard.writeText(
-      jsonOutput.textContent
-    );
 
-    copyBtn.textContent = "✅ Copied!";
+    /*
+     * BUILD THE SETTINGS JSON
+     *
+     * The COMPLETE input is used here.
+     *
+     * This stays in the browser and is
+     * NOT sent to Firebase.
+     */
 
-    setTimeout(() => {
-      copyBtn.textContent = "📋 Copy settings.json";
-    }, 2000);
+    const settings = {
 
-  } catch (error) {
+      env: {
 
-    alert("Could not copy automatically.");
+        ANTHROPIC_AUTH_TOKEN:
+          value,
 
-  }
+        ANTHROPIC_BASE_URL:
+          "https://agentrouter.org",
 
-});
+        ANTHROPIC_MODEL:
+          "claude-opus-4-8",
+
+        CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC:
+          "1"
+
+      },
+
+      permissions: {
+
+        allow: [],
+
+        deny: []
+
+      },
+
+      effortLevel:
+        "high"
+
+    };
+
+
+    /*
+     * Convert object to JSON
+     */
+
+    const json =
+      JSON.stringify(
+        settings,
+        null,
+        2
+      );
+
+
+    /*
+     * SHOW GENERATED JSON
+     */
+
+    jsonOutput.textContent =
+      json;
+
+    outputArea.style.display =
+      "block";
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Create a MASKED version.
+     *
+     * Example:
+     *
+     * Input:
+     * TEST_KEY_123456
+     *
+     * Firebase receives:
+     * ••••••••3456
+     *
+     * The complete input is NOT stored.
+     */
+
+    const masked =
+      value.length >= 4
+        ? "••••••••" + value.slice(-4)
+        : "••••••••";
+
+
+    /*
+     * SAVE ONLY THE MASKED VALUE
+     * TO FIREBASE
+     */
+
+    try {
+
+      await db
+        .collection("generated_entries")
+        .add({
+
+          identifier: masked,
+
+          createdAt:
+            firebase.firestore.FieldValue
+              .serverTimestamp()
+
+        });
+
+
+      /*
+       * Firebase successfully saved
+       */
+
+      success.style.display =
+        "block";
+
+      errorBox.style.display =
+        "none";
+
+
+    } catch (error) {
+
+      console.error(
+        "Firebase error:",
+        error
+      );
+
+
+      /*
+       * JSON still works even if
+       * Firebase fails.
+       */
+
+      success.style.display =
+        "block";
+
+      success.textContent =
+        "Generated Successfully";
+
+
+      errorBox.textContent =
+        "The settings were generated, but Firebase could not save the entry.";
+
+      errorBox.style.display =
+        "block";
+
+    }
+
+
+    generateBtn.disabled =
+      false;
+
+    generateBtn.textContent =
+      "Generate";
+
+  });
+
+
+  /*
+   * COPY GENERATED JSON
+   */
+
+  copyBtn.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          jsonOutput.textContent
+        );
+
+        copyBtn.textContent =
+          "Copied";
+
+        setTimeout(() => {
+
+          copyBtn.textContent =
+            "Copy settings.json";
+
+        }, 2000);
+
+      } catch (error) {
+
+        alert(
+          "Could not copy the settings."
+        );
+
+      }
+
+    }
+  );
 
 </script>
 
