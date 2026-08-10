@@ -250,14 +250,11 @@
        * Save only a masked identifier to Firebase.
        */
 
-      const maskedValue =
-        value.length >= 4
-          ? "••••" + value.slice(-4)
-          : "••••";
+      
 
 
       generateBtn.disabled = true;
-      generateBtn.textContent = "Saving...";
+      generateBtn.textContent = "Generating...";
 
 
       try {
